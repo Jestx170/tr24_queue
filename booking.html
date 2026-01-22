@@ -8,6 +8,35 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+   <a href="index.html" class="back-link-float">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <span>หน้าหลัก</span>
+</a>
+
+<style>
+.back-link-float {
+    position: fixed; /* ใช้ fixed เพื่อให้ติดหน้าจอแม้ไถหน้าลงมา */
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.8); /* พื้นหลังจางๆ ให้เห็นง่ายขึ้น */
+    padding: 8px 12px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: #000;
+    font-weight: 500;
+    font-size: 14px;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    z-index: 9999;
+}
+.back-link-float:hover {
+    background: #000;
+    color: #fff;
+}
+</style>
 
     <div class="container">
         <header>
@@ -147,7 +176,6 @@
             <p class="note-text">*ไฟล์จะถูกเก็บไว้ใน Google Drive ของร้าน</p>
         </div>
         <button type="submit" id="finalSubmit" class="btn-submit">ยืนยันและส่งข้อมูล</button>
-        <a href="index.html" style="text-decoration: none; color: #000; font-size: 12px;">← กลับหน้าหลัก</a>
     </div>
 </div>
         </form>
@@ -155,7 +183,7 @@
 
  <script>
     // 🔥 1. เอา Web App URL ที่ได้จากขั้นตอนที่ 2 มาใส่ตรงนี้
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxY5Y98ytRoKMSDwWr3w-JQxCnA7M_B5U9AXQBCrPkzlw8R5Zot-EZf4habfoTpxQHA/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwFE-fN9Fzx-QVFupTkOmPq1es2p_7Woud5hci7n3p5yMmYifvUUZVa-jSA_AedAXzf/exec';
 
     const form = document.getElementById('bookingForm');
     const btn = document.getElementById('finalSubmit');
@@ -189,6 +217,7 @@
 
    form.addEventListener('submit', async (e) => { // เพิ่ม async หน้า (e)
     e.preventDefault();
+    
     
     if (!form.checkValidity()) {
         form.reportValidity();
@@ -246,17 +275,17 @@
             slipMimeType: slipFileData.type
         };
 
-        const response = await fetch(scriptURL, {
-            method: 'POST',
-            body: JSON.stringify(payload)
+ // แก้ไขจากของเดิมที่เป็น fetch(...).then(...)
+        const response = await fetch(scriptURL, { 
+            method: 'POST', 
+            body: JSON.stringify(payload) 
         });
 
         const result = await response.json();
 
         if (result.result === 'success') {
             alert("จองคิวสำเร็จ! ข้อมูลและรูปภาพถูกบันทึกแล้ว");
-            form.reset();
-            document.getElementById('paymentModal').style.display = 'none';
+            window.location.href = "index.html"; // ย้ายมาไว้ตรงนี้เพื่อให้แน่ใจว่าสำเร็จก่อนค่อยไป
         } else {
             throw new Error(result.error);
         }
