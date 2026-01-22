@@ -86,24 +86,12 @@
             </div>
             
             <div class="form-group" style="text-align: left; margin-top: 20px;">
-                <label>รูปของจริงตามที่แนบไปครับ/คะ</label>
-                <input type="file" id="slipFile" accept="image/*" required>
+                <label>แนปรูปของที่จะให้ไปรับครับ/คะ</label>
+                <input type="file" id="Product pictures" accept="image/*" required>
                 <p class="note-text">*ไฟล์จะถูกเก็บไว้ใน Google Drive ของร้าน</p>
             </div>
 
             
-<div id="paymentModal" class="modal">
-    <div class="modal-content">
-        <h3>ชำระเงิน (Payment)</h3>
-        <p>กรุณาสแกน QR Code เพื่อชำระค่าบริการ</p>
-        
-        <img width="230" src="image/IMG_0665.JPG" alt="PromptPay QR" class="qr-img">
-        
-        <div class="form-group" style="text-align: left; margin-top: 20px;">
-            <label>แนบสลิปโอนเงิน (Upload Slip)</label>
-            <input type="file" id="slipFile" accept="image/*" required>
-            <p class="note-text">*ไฟล์จะถูกเก็บไว้ใน Google Drive ของร้าน</p>
-        </div>
         <hr>
 <div class="addon-section">
     <h3 style="font-size:16px; margin-bottom:15px;">บริการเพิ่มเติม (Add-on Services)</h3>
@@ -117,11 +105,11 @@
             </label>
             <label class="radio-item">
                 <input type="radio" name="service_speed" value="100" onchange="calculateTotal()">
-                ด่วน 1-2 วัน (Fast Track) <span class="price">+100.-</span>
+                ด่วน 1-2 วัน (Fast Track) <span class="price">+89.-</span>
             </label>
             <label class="radio-item">
                 <input type="radio" name="service_speed" value="159" onchange="calculateTotal()">
-                ด่วนพิเศษ 1 วัน (Super Fast) <span class="price">+159.-</span>
+                ด่วนพิเศษ 1 วัน (Super Fast) <span class="price">+129.-</span>
             </label>
         </div>
     </div>
@@ -135,7 +123,7 @@
             </label>
             <label class="checkbox-item">
                 <input type="checkbox" id="chk_ozone" value="129" onchange="calculateTotal()">
-                อบโอโซนฆ่าเชื้อ (Ozone) <span class="price">+129.-</span>
+                อบโอโซนฆ่าเชื้อ (Ozone) <span class="price">+159.-</span>
             </label>
         </div>
     </div>
@@ -146,7 +134,18 @@
         <span style="font-size:18px;">บาท</span>
     </div>
 </div>
-
+<div id="paymentModal" class="modal">
+    <div class="modal-content">
+        <h3>ชำระเงิน (Payment)</h3>
+        <p>กรุณาสแกน QR Code เพื่อชำระค่าบริการ</p>
+        
+        <img width="230" src="image/IMG_0665.JPG" alt="PromptPay QR" class="qr-img">
+        
+        <div class="form-group" style="text-align: left; margin-top: 20px;">
+            <label>แนบสลิปโอนเงิน (Upload Slip)</label>
+            <input type="file" id="slipFile" accept="image/*" required>
+            <p class="note-text">*ไฟล์จะถูกเก็บไว้ใน Google Drive ของร้าน</p>
+        </div>
         <button type="submit" id="finalSubmit" class="btn-submit">ยืนยันและส่งข้อมูล</button>
         <a href="index.html" style="text-decoration: none; color: #000; font-size: 12px;">← กลับหน้าหลัก</a>
     </div>
@@ -154,84 +153,122 @@
         </form>
     </div>
 
-    <script>
-        // ⚠️ อย่าลืมเอา URL เดิมของคุณมาใส่ตรงนี้
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxleKkCr_5nAFxyMY-FWtIsb3KbVCn7BGcrm1d5pFtvti8CJJWP4Fp6CU-1H4sj5M5y/exec';
+ <script>
+    // 🔥 1. เอา Web App URL ที่ได้จากขั้นตอนที่ 2 มาใส่ตรงนี้
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxY5Y98ytRoKMSDwWr3w-JQxCnA7M_B5U9AXQBCrPkzlw8R5Zot-EZf4habfoTpxQHA/exec';
 
-        const form = document.getElementById('bookingForm');
-        const btn = document.querySelector('.btn-submit');
-
-        // ... (ตัวแปร scriptURL, form เดิม) ...
-
-// --- ฟังก์ชันคำนวณราคา ---
-function calculateTotal() {
-    let total = 189; // ราคาตั้งต้น
-
-    // 1. เช็คประเภทรองเท้า (ถ้าเป็นหนังกลับ +100)
-    const shoeType = document.getElementById('shoeType').value;
-    if (shoeType === 'Suede sneakers') {
-        total += 100;
-    }
-
-    // 2. เช็คความด่วน (Radio Button)
-    const speedRadios = document.getElementsByName('service_speed');
-    for (const radio of speedRadios) {
-        if (radio.checked) {
-            total += parseInt(radio.value);
-            break; 
-        }
-    }
-
-    // 3. เช็คบริการเสริม (Checkbox)
-    const chkYellow = document.getElementById('chk_yellow');
-    const chkOzone = document.getElementById('chk_ozone');
-
-    if (chkYellow.checked) total += 299;
-    if (chkOzone.checked) total += 129;
-
-    // อัปเดตตัวเลขในหน้าจอ
-    document.getElementById('displayTotal').innerText = total.toLocaleString(); // ใส่ลูกน้ำหลักพัน
+    const form = document.getElementById('bookingForm');
+    const btn = document.getElementById('finalSubmit');
     
-    return total; // ส่งค่ากลับไปใช้ตอนกดจ่ายเงิน
-}
-
-// อัปเดต Event Listener ของปุ่ม "ดำเนินการชำระเงิน"
-document.getElementById('openPayment').addEventListener('click', () => {
-    if(form.checkValidity()) { 
-        // คำนวณราคาสุดท้ายอีกครั้ง
-        const finalPrice = calculateTotal();
+    // (ฟังก์ชันคำนวณราคา calculateTotal เก็บไว้เหมือนเดิม หรือใช้จากด้านล่างนี้ก็ได้)
+    function calculateTotal() {
+        let total = 189; 
+        const shoeType = document.getElementById('shoeType').value;
         
-        // (Optional) แสดงยอดเงินใน Modal เพื่อย้ำลูกค้า
-        // คุณอาจต้องเพิ่ม <p id="modalPrice">...</p> ใน Modal HTML ก่อน
-        // document.getElementById('modalPrice').innerText = "ยอดโอน: " + finalPrice + " บาท";
+        if (shoeType === 'Suede sneakers') total += 100;
+        if (shoeType === 'sandals') total -= 110;
 
-        paymentModal.style.display = 'flex'; 
-    } else { 
-        form.reportValidity(); 
+        const speedRadios = document.getElementsByName('service_speed');
+        for (const radio of speedRadios) {
+            if (radio.checked) {
+                total += parseInt(radio.value);
+                break; 
+            }
+        }
+
+        const chkYellow = document.getElementById('chk_yellow');
+        const chkOzone = document.getElementById('chk_ozone');
+        if (chkYellow && chkYellow.checked) total += 299;
+        if (chkOzone && chkOzone.checked) total += 129;
+
+        const displayTotal = document.getElementById('displayTotal');
+        if(displayTotal) displayTotal.innerText = total.toLocaleString();
+        
+        return total;
+    }
+
+   form.addEventListener('submit', async (e) => { // เพิ่ม async หน้า (e)
+    e.preventDefault();
+    
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    btn.innerHTML = "กำลังอัปโหลดรูปภาพและบันทึก...";
+    btn.disabled = true;
+
+    // ฟังก์ชันสำหรับแปลงไฟล์เป็น Base64 แบบ Promise
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve({
+            base64: reader.result.split(',')[1],
+            name: file.name,
+            type: file.type
+        });
+        reader.onerror = error => reject(error);
+    });
+
+    try {
+        // ดึงไฟล์จาก Input ทั้ง 2 จุด
+        const productInput = document.getElementById('Product pictures');
+        const slipInput = document.querySelector('#paymentModal input[type="file"]');
+
+        if (!productInput.files[0] || !slipInput.files[0]) {
+            alert("กรุณาแนบทั้งรูปสินค้าและสลิปโอนเงิน");
+            btn.innerHTML = "ยืนยันและส่งข้อมูล";
+            btn.disabled = false;
+            return;
+        }
+
+        // แปลงไฟล์ทั้งคู่พร้อมกัน
+        const productFileData = await toBase64(productInput.files[0]);
+        const slipFileData = await toBase64(slipInput.files[0]);
+
+        const payload = {
+            phone: form.phone.value,
+            shoe_type: form.shoe_type.value,
+            brand: form.brand.value,
+            model: form.model.value,
+            pickup_date: form.pickup_date.value,
+            return_date: form.return_date.value,
+            address: form.address.value,
+            note: form.note.value,
+            total_price: calculateTotal(),
+            // ข้อมูลรูปสินค้า
+            productFile: productFileData.base64,
+            productFileName: productFileData.name,
+            productMimeType: productFileData.type,
+            // ข้อมูลรูปสลิป
+            slipFile: slipFileData.base64,
+            slipFileName: slipFileData.name,
+            slipMimeType: slipFileData.type
+        };
+
+        const response = await fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.result === 'success') {
+            alert("จองคิวสำเร็จ! ข้อมูลและรูปภาพถูกบันทึกแล้ว");
+            form.reset();
+            document.getElementById('paymentModal').style.display = 'none';
+        } else {
+            throw new Error(result.error);
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("เกิดข้อผิดพลาด: " + error.message);
+    } finally {
+        btn.innerHTML = "ยืนยันและส่งข้อมูล";
+        btn.disabled = false;
     }
 });
 
-// ... (ส่วน submit form เหมือนเดิม) ...
-
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-            btn.innerHTML = "กำลังบันทึก...";
-            btn.disabled = true;
-
-            fetch(scriptURL, { method: 'POST', body: formData})
-                .then(response => {
-                    alert("จองคิวสำเร็จเรียบร้อย!");
-                    form.reset();
-                    btn.innerHTML = "ยืนยันการจอง";
-                    btn.disabled = false;
-                })
-                .catch(error => {
-                    console.error('Error!', error.message);
-                    alert("เกิดข้อผิดพลาด");
-                    btn.innerHTML = "ยืนยันการจอง";
-                    btn.disabled = false;
-                });
-        });
-    </script>
-</body>
-</html>
+    // ปุ่มปิด Modal หรือ Logic อื่นๆ (ถ้ามี) ใส่ต่อท้ายได้เลย
+</script>
