@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Status - Shoe Service</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <a href="index.html" style="text-decoration: none; color: #000; font-size: 12px;">← กลับหน้าหลัก</a>
+            <h1 style="margin-top: 20px;">ติดตามสถานะ</h1>
+            <p style="color:#666; font-size:14px;">กรอกเบอร์โทรศัพท์เพื่อเช็คสถานะรองเท้าของคุณ</p>
+        </header>
+
+        <div class="search-box">
+            <div class="form-group">
+                <input type="tel" id="searchPhone" placeholder="ระบุเบอร์โทรศัพท์ 10 หลัก" required>
+            </div>
+            <button onclick="trackStatus()" class="btn-submit">ค้นหาข้อมูล</button>
+        </div>
+
+        <div id="resultSection" style="display: none; margin-top: 30px;">
+            <hr>
+            <div class="status-card">
+                <h2 id="resName" style="font-size: 20px; margin-bottom: 10px;">คุณสมชาย ใจดี</h2>
+                <div class="status-badge" id="resStatus">กำลังดำเนินการ</div>
+                
+                <div class="res-detail">
+                    <p><strong>รองเท้า:</strong> <span id="resShoe">Sneakers - Nike</span></p>
+                    <p><strong>วันที่รับ:</strong> <span id="resDate">12/01/2026</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="errorText" style="display: none; color: red; text-align: center; margin-top: 20px;">
+            ไม่พบข้อมูลการจองจากเบอร์โทรนี้
+        </div>
+    </div>
+
+    <script>
+        function trackStatus() {
+            const phone = document.getElementById('searchPhone').value;
+            const resultSection = document.getElementById('resultSection');
+            const errorText = document.getElementById('errorText');
+
+            if(phone === "") {
+                alert("กรุณากรอกเบอร์โทรศัพท์");
+                return;
+            }
+
+            // จำลองการดึงข้อมูล (ในอนาคตต้องเขียน Fetch ไปที่ Google Sheet)
+            // ตัวอย่าง: ถ้าเบอร์คือ 0812345678 ให้แสดงผล
+            if(phone === "0812345678") {
+                resultSection.style.display = "block";
+                errorText.style.display = "none";
+                document.getElementById('resName').innerText = "คุณสมชาย ใจดี";
+                document.getElementById('resStatus').innerText = "ซักเสร็จแล้ว / รอส่งคืน";
+                document.getElementById('resStatus').style.background = "#000";
+                document.getElementById('resStatus').style.color = "#fff";
+            } else {
+                resultSection.style.display = "none";
+                errorText.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>
