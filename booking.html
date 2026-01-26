@@ -6,6 +6,7 @@
     <title>Booking - Minimal B&W</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
    <a href="index.html" class="back-link-float">
@@ -284,6 +285,17 @@
         const result = await response.json();
 
         if (result.result === 'success') {
+            Swal.fire({
+        title: 'จองเสร็จสิ้น!',
+        text: 'ข้อมูลและรูปภาพถูกบันทึกเรียบร้อยแล้ว',
+        icon: 'success',
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#000'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "index.html";
+        }
+    });
             window.location.href = "index.html"; // ย้ายมาไว้ตรงนี้เพื่อให้แน่ใจว่าสำเร็จก่อนค่อยไป
         } else {
             throw new Error(result.error);
@@ -300,6 +312,7 @@
 
     
 </script>
+
 
 
 
