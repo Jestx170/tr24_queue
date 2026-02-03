@@ -276,33 +276,30 @@
     });
 
    try {
-        // ดึงไฟล์จาก Input ทั้ง 2 จุด
         const productInput = document.getElementById('Product pictures');
         const slipInput = document.querySelector('#paymentModal input[type="file"]');
 
         if (!productInput.files[0] || !slipInput.files[0]) {
             alert("กรุณาแนบทั้งรูปสินค้าและสลิปโอนเงิน");
-            // (สมมติว่า btn คือตัวแปรปุ่มกด)
-            // btn.innerHTML = "ยืนยันและส่งข้อมูล";
-            // btn.disabled = false;
+            btn.innerHTML = "ยืนยันและส่งข้อมูล";
+            btn.disabled = false;
             return;
         }
 
-        // แปลงไฟล์ทั้งคู่พร้อมกัน
-        const productFileData = await toBase64(productInput.files[0]);
-        const slipFileData = await toBase64(slipInput.files[0]);
+        // --- แก้ไขตรงนี้: บีบอัดก่อนค่อยแปลงเป็น Base64 ---
+        const compressedProduct = await compressImage(productInput.files[0]);
+        const compressedSlip = await compressImage(slipInput.files[0]);
 
-        // ==========================================
-        // [ใหม่] Step 1: ดึงข้อความระดับความด่วน
-        // ==========================================
-        // หา Radio ที่ถูก check อยู่
+        const productFileData = await toBase64(compressedProduct);
+        const slipFileData = await toBase64(compressedSlip);
+        // ---------------------------------------------
+
         const speedRadio = document.querySelector('input[name="service_speed"]:checked');
-        // ดึงข้อความจาก Label ของ Radio นั้น (เช่น "ด่วน 1-2 วัน (Fast Track) +89.-")
-        // .parentElement.innerText จะได้ข้อความทั้งหมดใน label
-        let serviceSpeedText = "ปกติ (Standard)"; // ค่า Default
+        let serviceSpeedText = "ปกติ (Standard)";
         if (speedRadio) {
-             // ใช้ replace เพื่อลบช่องว่างส่วนเกิน
             serviceSpeedText = speedRadio.parentElement.innerText.replace(/\s+/g, ' ').trim();
+        }
+
         }
 
         // ==========================================
@@ -380,6 +377,7 @@
 
     
 </script>
+
 
 
 
