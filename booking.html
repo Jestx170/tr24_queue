@@ -240,21 +240,52 @@
         reader.onerror = error => reject(error);
     });
 
-    try {
+   try {
         // ดึงไฟล์จาก Input ทั้ง 2 จุด
         const productInput = document.getElementById('Product pictures');
         const slipInput = document.querySelector('#paymentModal input[type="file"]');
 
         if (!productInput.files[0] || !slipInput.files[0]) {
             alert("กรุณาแนบทั้งรูปสินค้าและสลิปโอนเงิน");
-            btn.innerHTML = "ยืนยันและส่งข้อมูล";
-            btn.disabled = false;
+            // (สมมติว่า btn คือตัวแปรปุ่มกด)
+            // btn.innerHTML = "ยืนยันและส่งข้อมูล";
+            // btn.disabled = false;
             return;
         }
 
         // แปลงไฟล์ทั้งคู่พร้อมกัน
         const productFileData = await toBase64(productInput.files[0]);
         const slipFileData = await toBase64(slipInput.files[0]);
+
+        // ==========================================
+        // [ใหม่] Step 1: ดึงข้อความระดับความด่วน
+        // ==========================================
+        // หา Radio ที่ถูก check อยู่
+        const speedRadio = document.querySelector('input[name="service_speed"]:checked');
+        // ดึงข้อความจาก Label ของ Radio นั้น (เช่น "ด่วน 1-2 วัน (Fast Track) +89.-")
+        // .parentElement.innerText จะได้ข้อความทั้งหมดใน label
+        let serviceSpeedText = "ปกติ (Standard)"; // ค่า Default
+        if (speedRadio) {
+             // ใช้ replace เพื่อลบช่องว่างส่วนเกิน
+            serviceSpeedText = speedRadio.parentElement.innerText.replace(/\s+/g, ' ').trim();
+        }
+
+        // ==========================================
+        // [ใหม่] Step 2: ดึงรายการบริการพิเศษ (Add-ons)
+        // ==========================================
+        let addons = [];
+        const chkYellow = document.getElementById('chk_yellow');
+        const chkOzone = document.getElementById('chk_ozone');
+
+        if (chkYellow && chkYellow.checked) {
+            addons.push("แก้พื้นเหลือง (Un-Yellowing)");
+        }
+        if (chkOzone && chkOzone.checked) {
+            addons.push("อบโอโซนฆ่าเชื้อ (Ozone)");
+        }
+        
+        // รวมเป็นข้อความเดียวคั่นด้วย comma (ถ้าไม่มีเลือกจะเป็นขีด -)
+        const addonsText = addons.length > 0 ? addons.join(", ") : "-";
 
         const payload = {
             phone: form.phone.value,
@@ -265,6 +296,8 @@
             return_date: form.return_date.value,
             address: form.address.value,
             note: form.note.value,
+            service_speed: serviceSpeedText, // ส่งข้อมูลความด่วน
+            addon_services: addonsText,      // ส่งข้อมูลบริการเสริม
             total_price: calculateTotal(),
             // ข้อมูลรูปสินค้า
             productFile: productFileData.base64,
@@ -312,6 +345,7 @@
 
     
 </script>
+
 
 
 
