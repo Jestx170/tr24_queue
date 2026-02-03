@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
 </head>
 <body>
    <a href="index.html" class="back-link-float">
@@ -188,6 +189,40 @@
 
     const form = document.getElementById('bookingForm');
     const btn = document.getElementById('finalSubmit');
+     // **[ใหม่]** ฟังก์ชันสำหรับบีบอัดรูปภาพ
+    async function compressImage(file) {
+        const options = {
+            maxSizeMB: 0.5,           // ขนาดสูงสุดของไฟล์ที่บีบอัด (MB) - กำหนด 0.5MB
+            maxWidthOrHeight: 1024,   // ความกว้าง/สูงสูงสุดของภาพ (pixels)
+            use  WebWorker: true,    // ใช้ Web Worker เพื่อประสิทธิภาพที่ดีขึ้น (แนะนำ)
+            fileType: 'image/jpeg',   // บังคับให้เป็น JPEG เพื่อลดขนาด
+            onProgress: (progress) => {
+                // คุณสามารถแสดง Progress Bar ได้ที่นี่หากต้องการ
+                // console.log('Compression progress:', progress);
+            }
+        };
+        try {
+            const compressedFile = await imageCompression(file, options);
+            console.log(`Original file size: ${file.size / 1024 / 1024} MB`);
+            console.log(`Compressed file size: ${compressedFile.size / 1024 / 1024} MB`);
+            return compressedFile;
+        } catch (error) {
+            console.error('Image compression error:', error);
+            return file; // ถ้าบีบอัดไม่ได้ ให้ใช้ไฟล์เดิม
+        }
+    }
+
+    // ฟังก์ชันสำหรับแปลงไฟล์เป็น Base64 แบบ Promise
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve({
+            base64: reader.result.split(',')[1],
+            name: file.name,
+            type: file.type
+        });
+        reader.onerror = error => reject(error);
+    });
     
     // (ฟังก์ชันคำนวณราคา calculateTotal เก็บไว้เหมือนเดิม หรือใช้จากด้านล่างนี้ก็ได้)
     function calculateTotal() {
@@ -345,6 +380,7 @@
 
     
 </script>
+
 
 
 
