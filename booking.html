@@ -191,17 +191,6 @@
     const form = document.getElementById('bookingForm');
     const btn = document.getElementById('finalSubmit');
 
-    function openPaymentModal() {
-        if(form.checkValidity()) {
-            document.getElementById('paymentModal').style.display = 'block';
-        } else {
-            form.reportValidity();
-        }
-    }
-
-    function closePaymentModal() {
-        document.getElementById('paymentModal').style.display = 'none';
-    }
 
     function calculateTotal() {
         let total = 189; 
@@ -304,3 +293,4 @@
 </script>
 </body>
 </html>
+
