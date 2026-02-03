@@ -1,347 +1,306 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking - Minimal B&W</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking - Minimal B&W</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+<style>
+    /* เพิ่ม CSS สำหรับ Modal */
+    .modal {
+        display: none; 
+        position: fixed;
+        z-index: 10000;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+        background-color: #fff;
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+    }
+    .back-link-float {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 8px 12px;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        text-decoration: none;
+        color: #000;
+        font-weight: 500;
+        font-size: 14px;
+        border: 1px solid #eee;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        z-index: 9999;
+    }
+    .back-link-float:hover { background: #000; color: #fff; }
+    .btn-next { background: #000; color: #fff; padding: 15px; border: none; border-radius: 8px; width: 100%; cursor: pointer; font-size: 16px; margin-top: 20px; }
+</style>
 <body>
-   <a href="index.html" class="back-link-float">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    <span>หน้าหลัก</span>
+
+<a href="index.html" class="back-link-float">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <span>หน้าหลัก</span>
 </a>
 
-<style>
-.back-link-float {
-    position: fixed; /* ใช้ fixed เพื่อให้ติดหน้าจอแม้ไถหน้าลงมา */
-    top: 20px;
-    left: 20px;
-    background: rgba(255, 255, 255, 0.8); /* พื้นหลังจางๆ ให้เห็นง่ายขึ้น */
-    padding: 8px 12px;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    text-decoration: none;
-    color: #000;
-    font-weight: 500;
-    font-size: 14px;
-    border: 1px solid #eee;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    z-index: 9999;
-}
-.back-link-float:hover {
-    background: #000;
-    color: #fff;
-}
-</style>
+<div class="container">
+    <header>
+        <img width="200" height="150" src="image/TR.png" alt="Shoe Service Logo" class="header-logo">
+        <p style="color:#666; font-size:14px;">จองคิวซักรองเท้า</p>
+    </header>
 
-    <div class="container">
-        <header>
-            <img width="200" height="150" src="image/TR.png" alt="Shoe Service Logo" class="header-logo">
-            <p style="color:#666; font-size:14px;">จองคิวซักรองเท้า</p>
-        </header>
+    <form id="bookingForm">
+        <div class="row1">
+            <div class="form-group">
+                <label>เบอร์โทร (Phone)</label>
+                <input type="tel" name="phone" required>
+            </div>
+        </div>
 
-        <form id="bookingForm">
-            <div class="row1">
-                <!-- <div class="form-group">
-                    <label>ชื่อ (Name)</label>
-                    <input type="text" name="name" required>
-                </div> -->
-                <div class="form-group">
-                    <label>เบอร์โทร (Phone)</label>
-                    <input type="tel" name="phone" required>
-                </div>
-            </div>
+        <hr>
 
-            <hr>
+        <div class="form-group">
+            <label>ประเภทรองเท้า (Shoe Type)</label>
+            <select name="shoe_type" id="shoeType" required onchange="calculateTotal()">
+                <option value="">-- กรุณาเลือก --</option>
+                <option value="basketball">รองเท้าบาส (Basketball shoes)</option>
+                <option value="sneakers">รองเท้าผ้าใบ (Sneakers)</option>
+                <option value="Suede sneakers">รองเท้าผ้าใบหนังกลับ (Suede sneakers)</option>
+                <option value="Nubuck">รองเท้าหนังนูบัค (Nubuck leather shoes)</option>
+                <option value="boots">รองเท้าหนัง (Leather)</option>
+                <option value="sandals">รองเท้าแตะ (Sandals)</option>
+                <option value="other">อื่นๆ (Other)</option>
+            </select>
+        </div>
 
-            <div class="form-group">
-                <label>ประเภทรองเท้า (Shoe Type)</label>
-                <select name="shoe_type" id="shoeType" required onchange="calculateTotal()">
-                <!-- <select name="shoe_type" required> -->
-                    <option value="">-- กรุณาเลือก --</option>
-                    <option value="basketball">ร้องเท้าบาส (basketball shoes)</option>
-                    <option value="sneakers">ร้องเท้าผ้าใบ (Sneakers)</option>
-                    <option value="Suede sneakers">ร้องเท้าผ้าใบหนังกลับ (Suede sneakers)</option>
-                    <option value="Nubuck">ร้องเท้าหนังนูบัค (Nubuck leather shoes)</option>
-                    <option value="boots">ร้องเท้าหนัง (leather)</option>
-                    <option value="sandals">รองเท้าแตะ (Sandals)</option>
-                    <option value="other">อื่นๆ (Other)</option>
-                    
-                </select>
-            </div>
-            
+        <div class="row">
+            <div class="form-group">
+                <label>แบรนด์ (Brand)</label>
+                <input type="text" name="brand" placeholder="เช่น Nike, Adidas" required>
+            </div>
+            <div class="form-group">
+                <label>ชื่อรุ่น (Model) <span style="font-weight:300; color:#999;">(ไม่บังคับ)</span></label>
+                <input type="text" name="model" placeholder="ระบุรุ่น (ถ้าทราบ)">
+            </div>
+        </div>
 
-            <div class="row">
-                <div class="form-group">
-                    <label>แบรนด์ (Brand)</label>
-                    <input type="text" name="brand" placeholder="เช่น Nike, Adidas, Unbrand" required>
-                </div>
-                <div class="form-group">
-                    <label>ชื่อรุ่น (Model) <span style="font-weight:300; color:#999;">(ไม่บังคับ)</span></label>
-                    <input type="text" name="model" placeholder="ระบุรุ่น (ถ้าทราบ)">
-                </div>
-            </div>
+        <hr>
 
-            <hr>
+        <div class="row">
+            <div class="form-group">
+                <label>วันรับรองเท้า</label>
+                <input type="date" name="pickup_date" required>
+            </div>
+            <div class="form-group">
+                <label>วันคืนรองเท้า *ขั้นต่ำ 3 วัน</label>
+                <input type="date" name="return_date" required>
+            </div>
+        </div>
 
-            <div class="row">
-                <div class="form-group">
-                    <label>วันรับรองเท้า </label>
-                    <input type="date" name="pickup_date" required>
-                </div>
-                <div class="form-group">
-                    <label>วันคืนรองเท้า *ขั้นต่ำ 3 วัน</label>
-                    <input type="date" name="return_date" required>
-                </div>
-            </div>
+        <div class="form-group">
+            <label>ที่อยู่ / Google Maps (Address)</label>
+            <textarea name="address" rows="3" placeholder="แปะลิงก์ Google Maps หรือที่อยู่จัดส่ง..." required></textarea>
+        </div>
 
-            <div class="form-group">
-                <label>ที่อยู่ / Google Maps (Address)</label>
-                <textarea name="address" rows="3" placeholder="แปะลิงก์ Google Maps หรือที่อยู่จัดส่ง..." required></textarea>
-            </div>
+        <div class="form-group">
+            <label>Note / หมายเหตุเพิ่มเติม</label>
+            <textarea name="note" rows="2" placeholder="เช่น ขอสะอาดๆ, งานด่วน (Extra Charge)"></textarea>
+        </div>
+        
+        <div class="form-group" style="text-align: left; margin-top: 20px;">
+            <label>แนบรูปของที่จะให้ไปรับ</label>
+            <input type="file" id="product_pictures" accept="image/*" required>
+            <p class="note-text">*ไฟล์จะถูกเก็บไว้ใน Google Drive ของร้าน</p>
+        </div>
 
-           <!-- <div class="form-group">
-                <label>Member ID</label>
-                <input type="text" name="member_id" placeholder='ถ้าไม่มี ให้พิมพ์ "ไม่มี"'>
-            </div> -->
+        <hr>
+        
+        <div class="addon-section">
+            <h3 style="font-size:16px; margin-bottom:15px;">บริการเพิ่มเติม (Add-on Services)</h3>
+            <div class="form-group">
+                <label>ระดับความด่วน (Service Speed)</label>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="service_speed" value="0" checked onchange="calculateTotal()">
+                        ปกติ (Standard) <span class="price">+0.-</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="service_speed" value="89" onchange="calculateTotal()">
+                        ด่วน 1-2 วัน (Fast Track) <span class="price">+89.-</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="service_speed" value="129" onchange="calculateTotal()">
+                        ด่วนพิเศษ 1 วัน (Super Fast) <span class="price">+129.-</span>
+                    </label>
+                </div>
+            </div>
 
-            <div class="form-group">
-                <label>Note / หมายเหตุเพิ่มเติม</label>
-                <textarea name="note" rows="2" placeholder="เช่น ขอสะอาดๆ, งานด่วน (Extra Charge)"></textarea>
-            </div>
-            
-            <div class="form-group" style="text-align: left; margin-top: 20px;">
-                <label>แนปรูปของที่จะให้ไปรับครับ/คะ</label>
-                <input type="file" id="Product pictures" accept="image/*" required>
-                <p class="note-text">*ไฟล์จะถูกเก็บไว้ใน Google Drive ของร้าน</p>
-            </div>
+            <div class="form-group">
+                <label>บริการพิเศษ (Extra Care)</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="chk_yellow" value="299" onchange="calculateTotal()">
+                        แก้พื้นเหลือง (Un-Yellowing) <span class="price">+299.-</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="chk_ozone" value="159" onchange="calculateTotal()">
+                        อบโอโซนฆ่าเชื้อ (Ozone) <span class="price">+159.-</span>
+                    </label>
+                </div>
+            </div>
 
-            
-        <hr>
-<div class="addon-section">
-    <h3 style="font-size:16px; margin-bottom:15px;">บริการเพิ่มเติม (Add-on Services)</h3>
-    
-    <div class="form-group">
-        <label>ระดับความด่วน (Service Speed)</label>
-        <div class="radio-group">
-            <label class="radio-item">
-                <input type="radio" name="service_speed" value="0" checked onchange="calculateTotal()">
-                ปกติ (Standard) <span class="price">+0.-</span>
-            </label>
-            <label class="radio-item">
-                <input type="radio" name="service_speed" value="89" onchange="calculateTotal()">
-                ด่วน 1-2 วัน (Fast Track) <span class="price">+89.-</span>
-            </label>
-            <label class="radio-item">
-                <input type="radio" name="service_speed" value="129" onchange="calculateTotal()">
-                ด่วนพิเศษ 1 วัน (Super Fast) <span class="price">+129.-</span>
-            </label>
-        </div>
-    </div>
+            <div class="total-price-box">
+                <span>ราคารวมทั้งสิ้น (Total)</span>
+                <span class="price-text" id="displayTotal">189</span>
+                <span style="font-size:18px;">บาท</span>
+            </div>
+        </div>
 
-    <div class="form-group">
-        <label>บริการพิเศษ (Extra Care)</label>
-        <div class="checkbox-group">
-            <label class="checkbox-item">
-                <input type="checkbox" id="chk_yellow" value="299" onchange="calculateTotal()">
-                แก้พื้นเหลือง (Un-Yellowing) <span class="price">+299.-</span>
-            </label>
-            <label class="checkbox-item">
-                <input type="checkbox" id="chk_ozone" value="159" onchange="calculateTotal()">
-                อบโอโซนฆ่าเชื้อ (Ozone) <span class="price">+159.-</span>
-            </label>
-        </div>
-    </div>
+        <button type="button" class="btn-next" onclick="openPaymentModal()">ไปที่การชำระเงิน</button>
 
-    <div class="total-price-box">
-        <span>ราคารวมทั้งสิ้น (Total)</span>
-        <span class="price-text" id="displayTotal">189</span>
-        <span style="font-size:18px;">บาท</span>
-    </div>
+        <div id="paymentModal" class="modal">
+            <div class="modal-content">
+                <span onclick="closePaymentModal()" style="float:right; cursor:pointer;">&times;</span>
+                <h3>ชำระเงิน (Payment)</h3>
+                <p>กรุณาสแกน QR Code เพื่อชำระค่าบริการ</p>
+                <img width="230" src="image/ชำระเงิน.png" alt="PromptPay QR" class="qr-img">
+                <div class="form-group" style="text-align: left; margin-top: 20px;">
+                    <label>แนบสลิปโอนเงิน (Upload Slip)</label>
+                    <input type="file" id="slipFile" accept="image/*" required>
+                </div>
+                <button type="submit" id="finalSubmit" class="btn-submit">ยืนยันและส่งข้อมูล</button>
+            </div>
+        </div>
+    </form>
 </div>
-<div id="paymentModal" class="modal">
-    <div class="modal-content">
-        <h3>ชำระเงิน (Payment)</h3>
-        <p>กรุณาสแกน QR Code เพื่อชำระค่าบริการ</p>
-        
-        <img width="230" src="image/ชำระเงิน.png" alt="PromptPay QR" class="qr-img">
-        
-        <div class="form-group" style="text-align: left; margin-top: 20px;">
-            <label>แนบสลิปโอนเงิน (Upload Slip)</label>
-            <input type="file" id="slipFile" accept="image/*" required>
-            <p class="note-text">*ไฟล์จะถูกเก็บไว้ใน Google Drive ของร้าน</p>
-        </div>
-        <button type="submit" id="finalSubmit" class="btn-submit">ยืนยันและส่งข้อมูล</button>
-    </div>
-</div>
-        </form>
-    </div>
 
- <script>
-    // 🔥 1. เอา Web App URL ที่ได้จากขั้นตอนที่ 2 มาใส่ตรงนี้
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwbOTutVaIgpSiMEXnnin-6RokFQQ_-Rq0gmgMM8Ydsh9R807PZUJ1t6mSL_e_mzwU/exec';
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwbOTutVaIgpSiMEXnnin-6RokFQQ_-Rq0gmgMM8Ydsh9R807PZUJ1t6mSL_e_mzwU/exec';
+    const form = document.getElementById('bookingForm');
+    const btn = document.getElementById('finalSubmit');
 
-    const form = document.getElementById('bookingForm');
-    const btn = document.getElementById('finalSubmit');
-    
-    // (ฟังก์ชันคำนวณราคา calculateTotal เก็บไว้เหมือนเดิม หรือใช้จากด้านล่างนี้ก็ได้)
-    function calculateTotal() {
-        let total = 189; 
-        const shoeType = document.getElementById('shoeType').value;
-        
-        if (shoeType === 'Suede sneakers') total += 100;
-        if (shoeType === 'sandals') total -= 110;
+    function openPaymentModal() {
+        if(form.checkValidity()) {
+            document.getElementById('paymentModal').style.display = 'block';
+        } else {
+            form.reportValidity();
+        }
+    }
 
-        const speedRadios = document.getElementsByName('service_speed');
-        for (const radio of speedRadios) {
-            if (radio.checked) {
-                total += parseInt(radio.value);
-                break; 
-            }
-        }
+    function closePaymentModal() {
+        document.getElementById('paymentModal').style.display = 'none';
+    }
 
-        const chkYellow = document.getElementById('chk_yellow');
-        const chkOzone = document.getElementById('chk_ozone');
-        if (chkYellow && chkYellow.checked) total += 299;
-        if (chkOzone && chkOzone.checked) total += 129;
+    function calculateTotal() {
+        let total = 189; 
+        const shoeType = document.getElementById('shoeType').value;
+        
+        if (shoeType === 'Suede sneakers') total += 100;
+        if (shoeType === 'sandals') total -= 110;
 
-        const displayTotal = document.getElementById('displayTotal');
-        if(displayTotal) displayTotal.innerText = total.toLocaleString();
-        
-        return total;
-    }
+        const speedRadio = document.querySelector('input[name="service_speed"]:checked');
+        if (speedRadio) total += parseInt(speedRadio.value);
 
-   form.addEventListener('submit', async (e) => { // เพิ่ม async หน้า (e)
-    e.preventDefault();
-    
-    
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
+        const chkYellow = document.getElementById('chk_yellow');
+        const chkOzone = document.getElementById('chk_ozone');
+        if (chkYellow && chkYellow.checked) total += 299;
+        if (chkOzone && chkOzone.checked) total += 159; // ปรับให้ตรงกับ HTML
 
-    btn.innerHTML = "กำลังอัปโหลดรูปภาพและบันทึก...";
-    btn.disabled = true;
+        document.getElementById('displayTotal').innerText = total.toLocaleString();
+        return total;
+    }
 
-    // ฟังก์ชันสำหรับแปลงไฟล์เป็น Base64 แบบ Promise
-    const toBase64 = file => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve({
-            base64: reader.result.split(',')[1],
-            name: file.name,
-            type: file.type
-        });
-        reader.onerror = error => reject(error);
-    });
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve({
+            base64: reader.result.split(',')[1],
+            name: file.name,
+            type: file.type
+        });
+        reader.onerror = error => reject(error);
+    });
 
-   try {
-        // ดึงไฟล์จาก Input ทั้ง 2 จุด
-        const productInput = document.getElementById('Product pictures');
-        const slipInput = document.querySelector('#paymentModal input[type="file"]');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const productInput = document.getElementById('product_pictures');
+        const slipInput = document.getElementById('slipFile');
 
-        if (!productInput.files[0] || !slipInput.files[0]) {
-            alert("กรุณาแนบทั้งรูปสินค้าและสลิปโอนเงิน");
-            // (สมมติว่า btn คือตัวแปรปุ่มกด)
-            // btn.innerHTML = "ยืนยันและส่งข้อมูล";
-            // btn.disabled = false;
-            return;
-        }
+        if (!productInput.files[0] || !slipInput.files[0]) {
+            Swal.fire('กรุณาเลือกไฟล์', 'ต้องแนบทั้งรูปสินค้าและสลิป', 'warning');
+            return;
+        }
 
-        // แปลงไฟล์ทั้งคู่พร้อมกัน
-        const productFileData = await toBase64(productInput.files[0]);
-        const slipFileData = await toBase64(slipInput.files[0]);
+        btn.innerHTML = "กำลังบันทึกข้อมูล...";
+        btn.disabled = true;
 
-        // ==========================================
-        // [ใหม่] Step 1: ดึงข้อความระดับความด่วน
-        // ==========================================
-        // หา Radio ที่ถูก check อยู่
-        const speedRadio = document.querySelector('input[name="service_speed"]:checked');
-        // ดึงข้อความจาก Label ของ Radio นั้น (เช่น "ด่วน 1-2 วัน (Fast Track) +89.-")
-        // .parentElement.innerText จะได้ข้อความทั้งหมดใน label
-        let serviceSpeedText = "ปกติ (Standard)"; // ค่า Default
-        if (speedRadio) {
-             // ใช้ replace เพื่อลบช่องว่างส่วนเกิน
-            serviceSpeedText = speedRadio.parentElement.innerText.replace(/\s+/g, ' ').trim();
-        }
+        try {
+            const productFileData = await toBase64(productInput.files[0]);
+            const slipFileData = await toBase64(slipInput.files[0]);
 
-        // ==========================================
-        // [ใหม่] Step 2: ดึงรายการบริการพิเศษ (Add-ons)
-        // ==========================================
-        let addons = [];
-        const chkYellow = document.getElementById('chk_yellow');
-        const chkOzone = document.getElementById('chk_ozone');
+            const speedRadio = document.querySelector('input[name="service_speed"]:checked');
+            let serviceSpeedText = speedRadio ? speedRadio.parentElement.innerText.replace(/\s+/g, ' ').trim() : "ปกติ";
 
-        if (chkYellow && chkYellow.checked) {
-            addons.push("แก้พื้นเหลือง (Un-Yellowing)");
-        }
-        if (chkOzone && chkOzone.checked) {
-            addons.push("อบโอโซนฆ่าเชื้อ (Ozone)");
-        }
-        
-        // รวมเป็นข้อความเดียวคั่นด้วย comma (ถ้าไม่มีเลือกจะเป็นขีด -)
-        const addonsText = addons.length > 0 ? addons.join(", ") : "-";
+            let addons = [];
+            if (document.getElementById('chk_yellow').checked) addons.push("แก้พื้นเหลือง");
+            if (document.getElementById('chk_ozone').checked) addons.push("อบโอโซน");
 
-        const payload = {
-            phone: form.phone.value,
-            shoe_type: form.shoe_type.value,
-            brand: form.brand.value,
-            model: form.model.value,
-            pickup_date: form.pickup_date.value,
-            return_date: form.return_date.value,
-            address: form.address.value,
-            note: form.note.value,
-            service_speed: serviceSpeedText, // ส่งข้อมูลความด่วน
-            addon_services: addonsText,      // ส่งข้อมูลบริการเสริม
-            total_price: calculateTotal(),
-            // ข้อมูลรูปสินค้า
-            productFile: productFileData.base64,
-            productFileName: productFileData.name,
-            productMimeType: productFileData.type,
-            // ข้อมูลรูปสลิป
-            slipFile: slipFileData.base64,
-            slipFileName: slipFileData.name,
-            slipMimeType: slipFileData.type
-        };
+            const payload = {
+                phone: form.phone.value,
+                shoe_type: form.shoe_type.value,
+                brand: form.brand.value,
+                model: form.model.value,
+                pickup_date: form.pickup_date.value,
+                return_date: form.return_date.value,
+                address: form.address.value,
+                note: form.note.value,
+                service_speed: serviceSpeedText,
+                addon_services: addons.length > 0 ? addons.join(", ") : "-",
+                total_price: calculateTotal(),
+                productFile: productFileData.base64,
+                productFileName: productFileData.name,
+                productMimeType: productFileData.type,
+                slipFile: slipFileData.base64,
+                slipFileName: slipFileData.name,
+                slipMimeType: slipFileData.type
+            };
 
- // แก้ไขจากของเดิมที่เป็น fetch(...).then(...)
-        const response = await fetch(scriptURL, { 
-            method: 'POST', 
-            body: JSON.stringify(payload) 
-        });
+            const response = await fetch(scriptURL, { 
+                method: 'POST', 
+                body: JSON.stringify(payload) 
+            });
 
-        const result = await response.json();
+            const result = await response.json();
 
-        if (result.result === 'success') {
-            Swal.fire({
-        title: 'จองเสร็จสิ้น!',
-        text: 'ข้อมูลและรูปภาพถูกบันทึกเรียบร้อยแล้ว',
-        icon: 'success',
-        confirmButtonText: 'ตกลง',
-        confirmButtonColor: '#000'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = "index.html";
-        }
-    });
-            // window.location.href = "index.html"; // ย้ายมาไว้ตรงนี้เพื่อให้แน่ใจว่าสำเร็จก่อนค่อยไป
-        } else {
-            throw new Error(result.error);
-        }
-
-    } catch (error) {
-        console.error(error);
-        alert("เกิดข้อผิดพลาด: " + error.message);
-    } finally {
-        btn.innerHTML = "ยืนยันและส่งข้อมูล";
-        btn.disabled = false;
-    }
-});
-
-    
+            if (result.result === 'success') {
+                Swal.fire({
+                    title: 'จองเสร็จสิ้น!',
+                    text: 'ข้อมูลถูกบันทึกเรียบร้อยแล้ว',
+                    icon: 'success'
+                }).then(() => { window.location.href = "index.html"; });
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error) {
+            Swal.fire('เกิดข้อผิดพลาด', error.message, 'error');
+        } finally {
+            btn.innerHTML = "ยืนยันและส่งข้อมูล";
+            btn.disabled = false;
+        }
+    });
 </script>
+</body>
+</html>
