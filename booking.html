@@ -183,212 +183,153 @@
         </form>
     </div>
 
- <script>
-    // 🔥 1. เอา Web App URL ที่ได้จากขั้นตอนที่ 2 มาใส่ตรงนี้
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwbOTutVaIgpSiMEXnnin-6RokFQQ_-Rq0gmgMM8Ydsh9R807PZUJ1t6mSL_e_mzwU/exec';
-
-    const form = document.getElementById('bookingForm');
-    const btn = document.getElementById('finalSubmit');
-     // **[ใหม่]** ฟังก์ชันสำหรับบีบอัดรูปภาพ
-    async function compressImage(file) {
-        const options = {
-            maxSizeMB: 0.5,           // ขนาดสูงสุดของไฟล์ที่บีบอัด (MB) - กำหนด 0.5MB
-            maxWidthOrHeight: 1024,   // ความกว้าง/สูงสูงสุดของภาพ (pixels)
-            use  WebWorker: true,    // ใช้ Web Worker เพื่อประสิทธิภาพที่ดีขึ้น (แนะนำ)
-            fileType: 'image/jpeg',   // บังคับให้เป็น JPEG เพื่อลดขนาด
-            onProgress: (progress) => {
-                // คุณสามารถแสดง Progress Bar ได้ที่นี่หากต้องการ
-                // console.log('Compression progress:', progress);
-            }
-        };
-        try {
-            const compressedFile = await imageCompression(file, options);
-            console.log(`Original file size: ${file.size / 1024 / 1024} MB`);
-            console.log(`Compressed file size: ${compressedFile.size / 1024 / 1024} MB`);
-            return compressedFile;
-        } catch (error) {
-            console.error('Image compression error:', error);
-            return file; // ถ้าบีบอัดไม่ได้ ให้ใช้ไฟล์เดิม
-        }
-    }
-
-    // ฟังก์ชันสำหรับแปลงไฟล์เป็น Base64 แบบ Promise
-    const toBase64 = file => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve({
-            base64: reader.result.split(',')[1],
-            name: file.name,
-            type: file.type
-        });
-        reader.onerror = error => reject(error);
-    });
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwbOTutVaIgpSiMEXnnin-6RokFQQ_-Rq0gmgMM8Ydsh9R807PZUJ1t6mSL_e_mzwU/exec';
+        const form = document.getElementById('bookingForm');
+        const btn = document.getElementById('finalSubmit');
     
-    // (ฟังก์ชันคำนวณราคา calculateTotal เก็บไว้เหมือนเดิม หรือใช้จากด้านล่างนี้ก็ได้)
-    function calculateTotal() {
-        let total = 189; 
-        const shoeType = document.getElementById('shoeType').value;
-        
-        if (shoeType === 'Suede sneakers') total += 100;
-        if (shoeType === 'sandals') total -= 110;
-
-        const speedRadios = document.getElementsByName('service_speed');
-        for (const radio of speedRadios) {
-            if (radio.checked) {
-                total += parseInt(radio.value);
-                break; 
+        // 1. ฟังก์ชันแปลงไฟล์เป็น Base64
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve({
+                base64: reader.result.split(',')[1],
+                name: file.name,
+                type: file.type
+            });
+            reader.onerror = error => reject(error);
+        });
+    
+        // 2. ฟังก์ชันบีบอัดรูปภาพ
+        async function compressImage(file) {
+            const options = {
+                maxSizeMB: 0.5,
+                maxWidthOrHeight: 1024,
+                useWebWorker: true,
+                fileType: 'image/jpeg'
+            };
+            try {
+                return await imageCompression(file, options);
+            } catch (error) {
+                console.error('Compression error:', error);
+                return file; 
             }
         }
-
-        const chkYellow = document.getElementById('chk_yellow');
-        const chkOzone = document.getElementById('chk_ozone');
-        if (chkYellow && chkYellow.checked) total += 299;
-        if (chkOzone && chkOzone.checked) total += 129;
-
-        const displayTotal = document.getElementById('displayTotal');
-        if(displayTotal) displayTotal.innerText = total.toLocaleString();
-        
-        return total;
-    }
-
-   form.addEventListener('submit', async (e) => { // เพิ่ม async หน้า (e)
-    e.preventDefault();
     
+        // 3. ฟังก์ชันคำนวณราคา
+        function calculateTotal() {
+            let total = 189; 
+            const shoeType = document.getElementById('shoeType').value;
+            
+            if (shoeType === 'Suede sneakers') total += 100;
+            if (shoeType === 'sandals') total -= 110;
     
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-
-    btn.innerHTML = "กำลังอัปโหลดรูปภาพและบันทึก...";
-    btn.disabled = true;
-
-    // ฟังก์ชันสำหรับแปลงไฟล์เป็น Base64 แบบ Promise
-    const toBase64 = file => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve({
-            base64: reader.result.split(',')[1],
-            name: file.name,
-            type: file.type
+            const speedRadios = document.getElementsByName('service_speed');
+            for (const radio of speedRadios) {
+                if (radio.checked) {
+                    total += parseInt(radio.value);
+                    break; 
+                }
+            }
+    
+            const chkYellow = document.getElementById('chk_yellow');
+            const chkOzone = document.getElementById('chk_ozone');
+            if (chkYellow && chkYellow.checked) total += 299;
+            if (chkOzone && chkOzone.checked) total += 129;
+    
+            const displayTotal = document.getElementById('displayTotal');
+            if(displayTotal) displayTotal.innerText = total.toLocaleString();
+            
+            return total;
+        }
+    
+        // 4. เมื่อกดส่งฟอร์ม
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+    
+            btn.innerHTML = "กำลังบีบอัดและอัปโหลด...";
+            btn.disabled = true;
+    
+            try {
+                const productInput = document.getElementById('Product pictures');
+                const slipInput = document.getElementById('slipFile');
+    
+                if (!productInput.files[0] || !slipInput.files[0]) {
+                    alert("กรุณาแนบทั้งรูปสินค้าและสลิปโอนเงิน");
+                    throw new Error("Missing files");
+                }
+    
+                // บีบอัดรูปภาพ
+                const compressedProduct = await compressImage(productInput.files[0]);
+                const compressedSlip = await compressImage(slipInput.files[0]);
+    
+                // แปลงเป็น Base64
+                const productFileData = await toBase64(compressedProduct);
+                const slipFileData = await toBase64(compressedSlip);
+    
+                // ดึงข้อมูลค่าบริการด่วน
+                const speedRadio = document.querySelector('input[name="service_speed"]:checked');
+                let serviceSpeedText = speedRadio ? speedRadio.parentElement.innerText.replace(/\s+/g, ' ').trim() : "ปกติ (Standard)";
+    
+                // ดึงข้อมูลบริการเสริม
+                let addons = [];
+                if (document.getElementById('chk_yellow').checked) addons.push("แก้พื้นเหลือง");
+                if (document.getElementById('chk_ozone').checked) addons.push("อบโอโซน");
+                const addonsText = addons.length > 0 ? addons.join(", ") : "-";
+    
+                // เตรียม Payload
+                const payload = {
+                    phone: form.phone.value,
+                    shoe_type: form.shoe_type.value,
+                    brand: form.brand.value,
+                    model: form.model.value,
+                    pickup_date: form.pickup_date.value,
+                    return_date: form.return_date.value,
+                    address: form.address.value,
+                    note: form.note.value,
+                    service_speed: serviceSpeedText,
+                    addon_services: addonsText,
+                    total_price: calculateTotal(),
+                    productFile: productFileData.base64,
+                    productFileName: productFileData.name,
+                    productMimeType: productFileData.type,
+                    slipFile: slipFileData.base64,
+                    slipFileName: slipFileData.name,
+                    slipMimeType: slipFileData.type
+                };
+    
+                const response = await fetch(scriptURL, { 
+                    method: 'POST', 
+                    body: JSON.stringify(payload) 
+                });
+    
+                const result = await response.json();
+    
+                if (result.result === 'success') {
+                    Swal.fire({
+                        title: 'จองเสร็จสิ้น!',
+                        text: 'ข้อมูลและรูปภาพถูกบันทึกเรียบร้อยแล้ว',
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#000'
+                    }).then(() => {
+                        window.location.href = "index.html";
+                    });
+                } else {
+                    throw new Error(result.error);
+                }
+    
+            } catch (error) {
+                console.error(error);
+                if(error.message !== "Missing files") alert("เกิดข้อผิดพลาด: " + error.message);
+            } finally {
+                btn.innerHTML = "ยืนยันและส่งข้อมูล";
+                btn.disabled = false;
+            }
         });
-        reader.onerror = error => reject(error);
-    });
-
-   try {
-        const productInput = document.getElementById('Product pictures');
-        const slipInput = document.querySelector('#paymentModal input[type="file"]');
-
-        if (!productInput.files[0] || !slipInput.files[0]) {
-            alert("กรุณาแนบทั้งรูปสินค้าและสลิปโอนเงิน");
-            btn.innerHTML = "ยืนยันและส่งข้อมูล";
-            btn.disabled = false;
-            return;
-        }
-
-        // --- แก้ไขตรงนี้: บีบอัดก่อนค่อยแปลงเป็น Base64 ---
-        const compressedProduct = await compressImage(productInput.files[0]);
-        const compressedSlip = await compressImage(slipInput.files[0]);
-
-        const productFileData = await toBase64(compressedProduct);
-        const slipFileData = await toBase64(compressedSlip);
-        // ---------------------------------------------
-
-        const speedRadio = document.querySelector('input[name="service_speed"]:checked');
-        let serviceSpeedText = "ปกติ (Standard)";
-        if (speedRadio) {
-            serviceSpeedText = speedRadio.parentElement.innerText.replace(/\s+/g, ' ').trim();
-        }
-
-        }
-
-        // ==========================================
-        // [ใหม่] Step 2: ดึงรายการบริการพิเศษ (Add-ons)
-        // ==========================================
-        let addons = [];
-        const chkYellow = document.getElementById('chk_yellow');
-        const chkOzone = document.getElementById('chk_ozone');
-
-        if (chkYellow && chkYellow.checked) {
-            addons.push("แก้พื้นเหลือง (Un-Yellowing)");
-        }
-        if (chkOzone && chkOzone.checked) {
-            addons.push("อบโอโซนฆ่าเชื้อ (Ozone)");
-        }
-        
-        // รวมเป็นข้อความเดียวคั่นด้วย comma (ถ้าไม่มีเลือกจะเป็นขีด -)
-        const addonsText = addons.length > 0 ? addons.join(", ") : "-";
-
-        const payload = {
-            phone: form.phone.value,
-            shoe_type: form.shoe_type.value,
-            brand: form.brand.value,
-            model: form.model.value,
-            pickup_date: form.pickup_date.value,
-            return_date: form.return_date.value,
-            address: form.address.value,
-            note: form.note.value,
-            service_speed: serviceSpeedText, // ส่งข้อมูลความด่วน
-            addon_services: addonsText,      // ส่งข้อมูลบริการเสริม
-            total_price: calculateTotal(),
-            // ข้อมูลรูปสินค้า
-            productFile: productFileData.base64,
-            productFileName: productFileData.name,
-            productMimeType: productFileData.type,
-            // ข้อมูลรูปสลิป
-            slipFile: slipFileData.base64,
-            slipFileName: slipFileData.name,
-            slipMimeType: slipFileData.type
-        };
-
- // แก้ไขจากของเดิมที่เป็น fetch(...).then(...)
-        const response = await fetch(scriptURL, { 
-            method: 'POST', 
-            body: JSON.stringify(payload) 
-        });
-
-        const result = await response.json();
-
-        if (result.result === 'success') {
-            Swal.fire({
-        title: 'จองเสร็จสิ้น!',
-        text: 'ข้อมูลและรูปภาพถูกบันทึกเรียบร้อยแล้ว',
-        icon: 'success',
-        confirmButtonText: 'ตกลง',
-        confirmButtonColor: '#000'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = "index.html";
-        }
-    });
-            // window.location.href = "index.html"; // ย้ายมาไว้ตรงนี้เพื่อให้แน่ใจว่าสำเร็จก่อนค่อยไป
-        } else {
-            throw new Error(result.error);
-        }
-
-    } catch (error) {
-        console.error(error);
-        alert("เกิดข้อผิดพลาด: " + error.message);
-    } finally {
-        btn.innerHTML = "ยืนยันและส่งข้อมูล";
-        btn.disabled = false;
-    }
-});
-
-    
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    </script>
