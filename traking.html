@@ -238,7 +238,16 @@
 
             const statusBadge = document.getElementById('resStatus');
             statusBadge.innerText = data.status;
-            statusBadge.style.background = "#000"; // หรือสีตามสถานะที่เคยทำไว้
+            
+            // กำหนดสีตามสถานะ
+            const statusColors = {
+                "จองเสร็จสิ้น": "#3B82F6",     
+                "กำลังดำเนินการซัก": "#F59E0B",
+                "ซักเสร็จแล้ว / รอส่งคืน": "#6366F1",
+                "จัดส่งสำเร็จ": "#10B981",
+};
+            
+            statusBadge.style.background = statusColors[data.status] || "#000"; // ถ้าไม่มีสถานะที่กำหนด ใช้สีดำ
             statusBadge.style.color = "#fff";
             
         } else {
