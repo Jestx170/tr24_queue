@@ -181,15 +181,20 @@
 </div>
         </form>
     </div>
-
- <script>
-    // 🔥 1. เอา Web App URL ที่ได้จากขั้นตอนที่ 2 มาใส่ตรงนี้
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="spinner-box">
+        <div class="spinner"></div>
+        <p>กำลังดำเนินการ...</p>
+        <p style="font-size: 12px; color: #aaa;">กรุณารอสักครู่ อย่าปิดหน้าต่าง</p>
+    </div>
+</div>
+<script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbzBGeUyxoLj_leLMDE1rjqUtqP9k4_mTXo46XRaLzT2mqCiZqOX4cUXza-6ML0OfNg/exec';
 
     const form = document.getElementById('bookingForm');
     const btn = document.getElementById('finalSubmit');
-    
-    // (ฟังก์ชันคำนวณราคา calculateTotal เก็บไว้เหมือนเดิม หรือใช้จากด้านล่างนี้ก็ได้)
+    const loadingOverlay = document.getElementById('loadingOverlay'); // ประกาศตัวแปร Overlay
+
     function calculateTotal() {
         let total = 189; 
         const shoeType = document.getElementById('shoeType').value;
@@ -216,19 +221,19 @@
         return total;
     }
 
-   form.addEventListener('submit', async (e) => { // เพิ่ม async หน้า (e)
+   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
     
     if (!form.checkValidity()) {
         form.reportValidity();
         return;
     }
 
-    btn.innerHTML = "กำลังอัปโหลดรูปภาพและบันทึก...";
+    // 1. เปิดหน้าจอ Loading และปิดปุ่ม
+    btn.innerHTML = "กำลังอัปโหลด...";
     btn.disabled = true;
+    loadingOverlay.style.display = 'flex'; // สั่งโชว์ Loading Overlay ที่สร้างไว้
 
-    // ฟังก์ชันสำหรับแปลงไฟล์เป็น Base64 แบบ Promise
     const toBase64 = file => new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -241,50 +246,36 @@
     });
 
    try {
-        // ดึงไฟล์จาก Input ทั้ง 2 จุด
         const productInput = document.getElementById('Product pictures');
         const slipInput = document.querySelector('#paymentModal input[type="file"]');
 
         if (!productInput.files[0] || !slipInput.files[0]) {
             alert("กรุณาแนบทั้งรูปสินค้าและสลิปโอนเงิน");
-            // (สมมติว่า btn คือตัวแปรปุ่มกด)
-            // btn.innerHTML = "ยืนยันและส่งข้อมูล";
-            // btn.disabled = false;
+            // ถ้าไม่แนบไฟล์ ต้องปิด Loading กลับมาเหมือนเดิมเพื่อให้กดใหม่ได้
+            loadingOverlay.style.display = 'none';
+            btn.innerHTML = "ยืนยันและส่งข้อมูล";
+            btn.disabled = false;
             return;
         }
 
-        // แปลงไฟล์ทั้งคู่พร้อมกัน
         const productFileData = await toBase64(productInput.files[0]);
         const slipFileData = await toBase64(slipInput.files[0]);
 
-        // ==========================================
-        // [ใหม่] Step 1: ดึงข้อความระดับความด่วน
-        // ==========================================
-        // หา Radio ที่ถูก check อยู่
+        // Step 1: ดึงข้อความระดับความด่วน
         const speedRadio = document.querySelector('input[name="service_speed"]:checked');
-        // ดึงข้อความจาก Label ของ Radio นั้น (เช่น "ด่วน 1-2 วัน (Fast Track) +89.-")
-        // .parentElement.innerText จะได้ข้อความทั้งหมดใน label
-        let serviceSpeedText = "ปกติ (Standard)"; // ค่า Default
+        let serviceSpeedText = "ปกติ (Standard)";
         if (speedRadio) {
-             // ใช้ replace เพื่อลบช่องว่างส่วนเกิน
             serviceSpeedText = speedRadio.parentElement.innerText.replace(/\s+/g, ' ').trim();
         }
 
-        // ==========================================
-        // [ใหม่] Step 2: ดึงรายการบริการพิเศษ (Add-ons)
-        // ==========================================
+        // Step 2: ดึงรายการบริการพิเศษ (Add-ons)
         let addons = [];
         const chkYellow = document.getElementById('chk_yellow');
         const chkOzone = document.getElementById('chk_ozone');
 
-        if (chkYellow && chkYellow.checked) {
-            addons.push("แก้พื้นเหลือง (Un-Yellowing)");
-        }
-        if (chkOzone && chkOzone.checked) {
-            addons.push("อบโอโซนฆ่าเชื้อ (Ozone)");
-        }
+        if (chkYellow && chkYellow.checked) addons.push("แก้พื้นเหลือง (Un-Yellowing)");
+        if (chkOzone && chkOzone.checked) addons.push("อบโอโซนฆ่าเชื้อ (Ozone)");
         
-        // รวมเป็นข้อความเดียวคั่นด้วย comma (ถ้าไม่มีเลือกจะเป็นขีด -)
         const addonsText = addons.length > 0 ? addons.join(", ") : "-";
 
         const payload = {
@@ -296,20 +287,17 @@
             return_date: form.return_date.value,
             address: form.address.value,
             note: form.note.value,
-            service_speed: serviceSpeedText, // ส่งข้อมูลความด่วน
-            addon_services: addonsText,      // ส่งข้อมูลบริการเสริม
+            service_speed: serviceSpeedText,
+            addon_services: addonsText,
             total_price: calculateTotal(),
-            // ข้อมูลรูปสินค้า
             productFile: productFileData.base64,
             productFileName: productFileData.name,
             productMimeType: productFileData.type,
-            // ข้อมูลรูปสลิป
             slipFile: slipFileData.base64,
             slipFileName: slipFileData.name,
             slipMimeType: slipFileData.type
         };
 
- // แก้ไขจากของเดิมที่เป็น fetch(...).then(...)
         const response = await fetch(scriptURL, { 
             method: 'POST', 
             body: JSON.stringify(payload) 
@@ -317,44 +305,37 @@
 
         const result = await response.json();
 
+        // เมื่อได้ผลลัพธ์แล้ว ให้ปิด Loading ก่อนจะโชว์ Alert
+        loadingOverlay.style.display = 'none';
+
         if (result.result === 'success') {
             Swal.fire({
-        title: 'จองเสร็จสิ้น!',
-        text: 'ข้อมูลและรูปภาพถูกบันทึกเรียบร้อยแล้ว',
-        icon: 'success',
-        confirmButtonText: 'ตกลง',
-        confirmButtonColor: '#000'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = "index.html";
-        }
-    });
-            // window.location.href = "index.html"; // ย้ายมาไว้ตรงนี้เพื่อให้แน่ใจว่าสำเร็จก่อนค่อยไป
+                title: 'จองเสร็จสิ้น!',
+                text: 'ข้อมูลและรูปภาพถูกบันทึกเรียบร้อยแล้ว',
+                icon: 'success',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#000'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "index.html";
+                }
+            });
         } else {
             throw new Error(result.error);
         }
 
     } catch (error) {
         console.error(error);
-        alert("เกิดข้อผิดพลาด: " + error.message);
+        loadingOverlay.style.display = 'none'; // ปิด Loading เมื่อ Error
+        Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: error.message
+        });
     } finally {
+        // คืนค่าปุ่มให้กดได้อีกครั้ง (เผื่อกรณี Error แล้วอยากกดส่งใหม่)
         btn.innerHTML = "ยืนยันและส่งข้อมูล";
         btn.disabled = false;
     }
 });
-
-    
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
